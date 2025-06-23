@@ -111,6 +111,18 @@ arisa_admin@lognpacific.com
 
 All of these accounts were determined to be false positives.
 
+### Verified each suspicious account using the query below: 
+
+```kql
+let TimePeriodThreshold = timespan(7d); // Change to how far back you want to look
+SigninLogs
+| where TimeGenerated > ago(TimePeriodThreshold)
+| where UserPrincipalName == "4e122e9d51e9b00071f10e1ee3037f485ab8889007b1fd516162f9c292cc0be1@lognpacific.com"
+| project TimeGenerated, UserPrincipalName, UserId, City = tostring(parse_json(LocationDetails).city), State = tostring(parse_json(LocationDetails).state), Country = tostring(parse_json(LocationDetails).countryOrRegion)
+| order by TimeGenerated desc 
+```
+![pic10](https://github.com/user-attachments/assets/b4ecc452-56a4-4fc5-9fbb-203c7ee027aa)
+
 
 ## 3. Investigation
 #### ✅ Verification of Access Attempts
