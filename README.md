@@ -109,8 +109,6 @@ d192a4eb8adec8d1264074bca42d83b8fdffd7e07b82e110358deedb17644d68@lognpacific.com
 
 arisa_admin@lognpacific.com
 
-All of these accounts were determined to be false positives.
-
 ### Verified each suspicious account using the query below: 
 
 ```kql
@@ -124,39 +122,49 @@ SigninLogs
 ![pic10](https://github.com/user-attachments/assets/b4ecc452-56a4-4fc5-9fbb-203c7ee027aa)
 
 
+#### Results: All of these accounts were determined to be Benign Positives.
+
 ## 3. Investigation
-#### ✅ Verification of Access Attempts
-A follow-up query was used to verify whether any of the suspicious IP addresses had successful logins:
+#### ✅ Identified True Positive:
+User:
+667e503b5c6895297d79a49dbe21b8b53a147fb504da9e93cb9cd03ff65d7336@lognpacific.com
+User ID: 9bff0192-2e00-489e-b7f2-e73e019cc908
 
 ```kql
-DeviceLogonEvents
-| where RemoteIP in ("27.124.47.210", "103.159.255.76")
-| where ActionType != "LogonFailed"
+// Investigate Potential Impossible Travel Instances
+let TargetUserPrincipalName = "667e503b5c6895297d79a49dbe21b8b53a147fb504da9e93cb9cd03ff65d7336@lognpacific.com";
+let TimePeriodThreshold = timespan(7d);
+SigninLogs
+| where TimeGenerated > ago(TimePeriodThreshold)
+| where UserPrincipalName == TargetUserPrincipalName
+| project TimeGenerated, UserPrincipalName, UserId, City = tostring(parse_json(LocationDetails).city), State = tostring(parse_json(LocationDetails).state), Country = tostring(parse_json(LocationDetails).countryOrRegion)
+| order by TimeGenerated desc
 ```
-![analyticrulecreation7](https://github.com/user-attachments/assets/4136541e-8f34-4b73-96c5-6739739fbed9)
-
 #### Result:
-🔒 No successful logins were observed from the flagged IP addresses.
+This account exhibited impossible travel behavior by logging in from San Jose, California and Shilin, Taipei within short time intervals that do not allow for realistic travel. Below are the observed logins:
+| Timestamp (UTC)        | City     | Country |
+| ---------------------- | -------- | ------- |
+| 6/17/2025, 03:23:58 AM | San Jose | US      |
+| 6/17/2025, 06:52:58 AM | Taipei   | TW      |
+| 6/17/2025, 06:54:55 AM | Taipei   | TW      |
+| 6/18/2025, 10:04:53 AM | San Jose | US      |
+| 6/18/2025, 10:06:27 AM | San Jose | US      |
+| 6/18/2025, 10:23:33 PM | Taipei   | TW      |
 
-#### Incident Activity Log:
+![pic11](https://github.com/user-attachments/assets/d8789a38-5c29-4891-82c7-bd2e1eef145c)
 
-![analyticrulecreation9](https://github.com/user-attachments/assets/27ec9ba3-4c1b-4f9c-9bee-eb0107635b36)
+#### Azure Activity Log:
 
-![analyticrulecreation10](https://github.com/user-attachments/assets/6f0f979b-95a5-4717-80e3-ac65a15a17ae)
+![pic12](https://github.com/user-attachments/assets/00ff250b-87ca-4db9-82e8-5ada036e6eb7)
 
 
-## 4. Containment Actions Taken
-### Isolated Devices:
-Both panbear-2nd-vm and hercules-soc were isolated in Microsoft Defender for Endpoint (MDE) to prevent further compromise.
+## 4. Containment, Eradication, and Recovery
+✅ Status: Confirmed True Positive
 
-###  Malware Scan:
-A full anti-malware scan was initiated and completed on both VMs using MDE.
+🛑 Action Taken:
 
-###  NSG Lockdown:
-Network Security Group (NSG) rules were updated:
-RDP access from the public internet was blocked.
-Only the investigator’s home IP is currently allowed RDP access.
-A Bastion host was proposed as a more secure alternative for future access.
+The user’s account was immediately disabled in Azure Active Directory.
 
-### Policy Recommendation:
-A recommendation has been submitted to enforce restricted RDP access for all virtual machines across the environment.
+The incident was escalated to management for further investigation.
+
+
