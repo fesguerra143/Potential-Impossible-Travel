@@ -1,9 +1,9 @@
 # Potential Impossible Travel Project
 
-##  🛡️ Incident Response: Potential Impossible Travel Detected
+##  🛡️ Incident Response: Impossible Travel Alert Investigation
 
 # Objective:
-Identify and analyze potential Potential Impossible Travel across the environment.
+Investigate and validate potential "Impossible Travel" alerts triggered by unusual user logon patterns across multiple geographic regions.
 
 ---
 # Tools & Technology:
@@ -25,49 +25,58 @@ Identify and analyze potential Potential Impossible Travel across the environmen
 
 ## 1. Summary
 Date of Notes: June 21, 2025 <br />
-Incident Type: Brute-Force Logon Attempts <br />
+Incident Type: Potential Impossible Travel (User Logon Anomaly) <br />
 Status: Contained <br />
 
 
 ## 2. Initial Detection & Analysis
 ### Methodology:
-An analytics rule (potentially in Microsoft Sentinel) was configured to detect a high volume of failed logon attempts. The following Kusto Query Language (KQL) query was utilized to identify devices experiencing a significant number of LogonFailed events within a 5-hour window:
-
+An Azure Sentinel Scheduled Query Rule, designed to identify users logging in from more than two different geographic regions within a 7-day period, flagged a total of 38 accounts for potential "Impossible Travel." The initial detection was based on the following KQL query against the SigninLogs table:
 
 
 ### Microsoft Sentinel: Configuration → Analytics Rule Creation
 #### General Settings:
-![analyticrulecreation1](https://github.com/user-attachments/assets/6c5e6703-b27d-474c-ad29-b778f9670970)
+![pic3](https://github.com/user-attachments/assets/59e104d7-fc55-46b9-904f-6288eb3e54b2)
 
 #### Set rule logic Settings:
-![analyticrulecreation2](https://github.com/user-attachments/assets/d5f943cc-c7f0-4264-92bb-993c3b4f903d)
+
+![pic4](https://github.com/user-attachments/assets/660e28e0-45d1-467a-b823-8ee2518aeaee)
 
 ##### Rule logic Testing using Log Analytics Workspace
 
 ```kql
-DeviceLogonEvents
-| where TimeGenerated >= ago(5h)
-| where ActionType == "LogonFailed"
-| summarize NumberOfFailures = count() by RemoteIP, ActionType, DeviceName
-| where NumberOfFailures >= 10
+// Locate Instances of Potential Impossible Travel
+let TimePeriodThreshold = timespan(7d);
+let NumberOfDifferentLocationsAllowed = 2;
+SigninLogs
+| where TimeGenerated > ago(TimePeriodThreshold)
+| summarize Count = count() by UserPrincipalName, UserId, City = tostring(parse_json(LocationDetails).city), State = tostring(parse_json(LocationDetails).state), Country = tostring(parse_json(LocationDetails).countryOrRegion)
+| project UserPrincipalName, UserId, City, State, Country
+| summarize PotentialImpossibleTravelInstances = count() by UserPrincipalName, UserId
+| where PotentialImpossibleTravelInstances > NumberOfDifferentLocationsAllowed
 
 ```
-![loganalytics1](https://github.com/user-attachments/assets/0bebfefd-9528-4265-adc0-0e091d19dbc6)
+![pic2](https://github.com/user-attachments/assets/481243fa-d7e9-49e2-945f-ab3e5c454718)
+
 
 #### Incident Settings:
 
-![analyticrulecreation3](https://github.com/user-attachments/assets/01a56ba6-c909-423b-9778-ce9994960127)
+
+![pic5](https://github.com/user-attachments/assets/adf2d1a5-4c5e-4a03-a047-6817a3821a9c)
 
 
 #### Review and Create: 
-![analyticrulecreation4](https://github.com/user-attachments/assets/282d098e-0d13-44c4-9072-fc3fcbb969ef)
 
+
+![pic6](https://github.com/user-attachments/assets/1a63b340-3759-4b7c-9929-4e21502e0a88)
 
 ### Microsoft Sentinel: Threat Management → Incidents
 
-![analyticrulecreation5](https://github.com/user-attachments/assets/ebabf39d-2aef-44cb-865f-a4dcaefaab79)
+![pic7](https://github.com/user-attachments/assets/e8744eaa-11e8-43ec-9404-92cfe2878999)
 
-![analyticrulecreation6](https://github.com/user-attachments/assets/ae021b2e-0c12-4117-a39b-960baa895c98)
+
+
+![pic8](https://github.com/user-attachments/assets/d759a91b-179a-4805-b09e-4f5e42ab766f)
 
 
 ### 📊 Analysis
