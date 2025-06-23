@@ -157,6 +157,11 @@ This account exhibited impossible travel behavior by logging in from San Jose, C
 
 ![pic12](https://github.com/user-attachments/assets/00ff250b-87ca-4db9-82e8-5ada036e6eb7)
 
+#### Update Microsoft Sentinel Incidents Activity Log:
+![pic13](https://github.com/user-attachments/assets/94f63e6b-06ad-405a-988f-d46b1aa5f03e)
+
+
+![pic14](https://github.com/user-attachments/assets/6412979b-d0dd-4005-a562-3397cb3f1170)
 
 ## 4. Containment, Eradication, and Recovery
 ✅ Status: Confirmed True Positive
