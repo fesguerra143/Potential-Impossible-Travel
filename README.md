@@ -13,12 +13,13 @@ Investigate and validate potential "Impossible Travel" alerts triggered by unusu
 - KQL Query
 
 ---
+
 # Table of contents
 
 - [1. Summary](#1-summary)
 - [2. Initial Detection & Analysis](#2-initial-detection--analysis)
 - [3. Investigation](#3-investigation)
-- [4. Containment Actions Taken](#4-containment-actions-taken)
+- [4. Containment, Eradication, and Recovery](#4-containment-eradication-and-recovery)
 ---
 
 
